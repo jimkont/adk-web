@@ -777,7 +777,41 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
+    private executeScript(scriptContent: string, messageId: string) {
+        // Find the specific wrapper div for this message using the unique ID
+        const container = this.document.getElementById('message-content-' + messageId);
+
+        if (container) {
+            const script = this.renderer.createElement('script');
+            script.type = 'text/javascript';
+            script.text = scriptContent;
+            // Append the script to the message's container, not the document body
+            this.renderer.appendChild(container, script);
+        } else {
+            console.error('Could not find message container to execute script for eventId:', messageId);
+        }
+    }
+
   private insertMessageBeforeLoadingMessage(message: any) {
+
+      // Check if the message has text content that could be JSON
+      if (message.text) {
+          try {
+              // Try to parse the text as a JSON object
+              const data = JSON.parse(message.text);
+
+              if (data && data.type === 'vega_chart' && data.htmlContent && data.scriptContent) {
+                  message.isVegaChart = true;
+                  message.htmlContent = this.sanitizer.bypassSecurityTrustHtml(data.htmlContent);
+
+                  // Use setTimeout to execute the script AFTER the div has been rendered.
+                  setTimeout(() => this.executeScript(data.scriptContent, message.eventId), 0);
+              }
+          } catch (e) {
+              // Not JSON, do nothing
+          }
+      }
+
     const lastMessage = this.messages[this.messages.length - 1];
     if (lastMessage?.isLoading) {
       this.messages.splice(this.messages.length - 1, 0, message);

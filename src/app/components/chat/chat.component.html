@@ -413,14 +413,21 @@
                             </div>
                           </div>
                         } @else {
-                          <markdown
-                            class="message-text"
-                            [data]="message.text"
-                            [ngStyle]="{
-                              'font-style': message.thought ? 'italic' : 'normal',
-                              color: message.thought ? '#9aa0a6' : 'white'
-                            }"
-                          ></markdown>
+                          @if (message.isVegaChart) {
+                            <div
+                              [id]="'message-content-' + message.eventId"
+                              [innerHTML]="message.htmlContent">
+                            </div>
+                          } @else {
+                            <markdown
+                              class="message-text"
+                              [data]="message.text"
+                              [ngStyle]="{
+                                'font-style': message.thought ? 'italic' : 'normal',
+                                color: message.thought ? '#9aa0a6' : 'white'
+                              }"
+                            ></markdown>
+                          }
                         }
                       }
                     </div>
