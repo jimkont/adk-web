@@ -783,9 +783,14 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
 
         if (container) {
             const script = this.renderer.createElement('script');
+            let sanitizedScript = scriptContent.trim();
+            // sometimes a `}` is added at the end, failing the script to parse
+            if (!sanitizedScript.startsWith('}') && sanitizedScript.endsWith('}')) {
+                // If the string ends with '}' but does not start with `{`, create a new string without the last character.
+                sanitizedScript = sanitizedScript.slice(0, -1);
+            }
             script.type = 'text/javascript';
-            script.text = scriptContent;
-            // Append the script to the message's container, not the document body
+            script.text = sanitizedScript;
             this.renderer.appendChild(container, script);
         } else {
             console.error('Could not find message container to execute script for eventId:', messageId);
