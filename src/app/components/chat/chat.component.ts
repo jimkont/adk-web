@@ -802,8 +802,36 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
       // Check if the message has text content that could be JSON
       if (message.text) {
           try {
+
+              // Function to clean and extract JSON from quoted text
+              const cleanJsonText = (text: string): string => {
+                  let cleaned = text.trim();
+
+                  // Handle triple quotes (''' or """)
+                  if ((cleaned.startsWith('"""') && cleaned.endsWith('"""')) ||
+                      (cleaned.startsWith("'''") && cleaned.endsWith("'''"))) {
+                      cleaned = cleaned.slice(3, -3).trim();
+                  }
+                  // Handle single/double quotes around the entire JSON
+                  else if (cleaned.startsWith('"') && cleaned.endsWith('"') ||
+                      (cleaned.startsWith("'") && cleaned.endsWith("'"))) {
+                      // Remove outer quotes and unescape inner quotes
+                      cleaned = cleaned.slice(1, -1);
+
+                  }
+
+                  // Fix missing closing brace if it starts with { but doesn't end with }
+                  if (cleaned.startsWith('{') && !cleaned.endsWith('}')) {
+                      cleaned += '}';
+                  }
+
+                  return cleaned;
+              };
+
+              const cleanedText = cleanJsonText(message.text);
+
               // Try to parse the text as a JSON object
-              const data = JSON.parse(message.text);
+              const data = JSON.parse(cleanedText);
 
               if (data && data.type === 'vega_chart' && data.htmlContent && data.scriptContent) {
                   message.isVegaChart = true;
