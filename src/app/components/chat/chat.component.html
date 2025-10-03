@@ -418,6 +418,13 @@
                               [id]="'message-content-' + message.eventId"
                               [innerHTML]="message.htmlContent">
                             </div>
+                              @if (message.chartExplanationMarkdown && message.chartExplanationMarkdown.trim() !== '') {
+                                  <markdown
+                                    class="message-text"
+                                    [data]="message.chartExplanationMarkdown"
+                                    [ngStyle]="{ 'font-style': 'normal', color: 'white' }"
+                                ></markdown>
+                            }
                           } @else {
                             <markdown
                               class="message-text"

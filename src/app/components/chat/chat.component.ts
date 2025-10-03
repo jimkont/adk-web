@@ -836,12 +836,17 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
               if (data && data.type === 'vega_chart' && data.htmlContent && data.scriptContent) {
                   message.isVegaChart = true;
                   message.htmlContent = this.sanitizer.bypassSecurityTrustHtml(data.htmlContent);
+                  if (data.chartExplanationMarkdown && data.chartExplanationMarkdown.trim() !== '')
+                      message.chartExplanationMarkdown = data.chartExplanationMarkdown;
 
                   // Use setTimeout to execute the script AFTER the div has been rendered.
                   setTimeout(() => this.executeScript(data.scriptContent, message.eventId), 0);
               }
           } catch (e) {
               // Not JSON, do nothing
+              if (message.text.includes('vega_chart') ) {
+                  console.error('error parsing :\n' + message.text, e);
+              }
           }
       }
 
